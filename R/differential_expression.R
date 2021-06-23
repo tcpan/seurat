@@ -54,7 +54,7 @@ FindAllMarkers <- function(
   min.pct = 0.1,
   min.diff.pct = -Inf,
   node = NULL,
-  verbose = TRUE,
+  verbose = FALSE,
   only.pos = FALSE,
   max.cells.per.ident = Inf,
   random.seed = 1,
@@ -483,7 +483,7 @@ FindMarkers.default <- function(
   test.use = 'wilcox',
   min.pct = 0.1,
   min.diff.pct = -Inf,
-  verbose = TRUE,
+  verbose = FALSE,
   only.pos = FALSE,
   max.cells.per.ident = Inf,
   random.seed = 1,
@@ -494,8 +494,8 @@ FindMarkers.default <- function(
   fc.results = NULL,
   ...
 ) {
-  print("TCP SEURAT: FindMarkers.default")
-  tic("FinMarkers.default load")
+  # print("TCP SEURAT: FindMarkers.default")
+  # tic("FinMarkers.default load")
   ValidateCellGroups(
     object = object,
     cells.1 = cells.1,
@@ -515,7 +515,7 @@ FindMarkers.default <- function(
     'scale.data' = counts,
     object
   )
-  print("TCP SEURAT: FindMarkers.default 1")
+  # print("TCP SEURAT: FindMarkers.default 1")
   # feature selection (based on percentages)
   alpha.min <- pmax(fc.results$pct.1, fc.results$pct.2)
   names(x = alpha.min) <- rownames(x = fc.results)
@@ -525,7 +525,7 @@ FindMarkers.default <- function(
     return(fc.results[features, ])
   }
 
-  print("TCP SEURAT: FindMarkers.default 2")
+  # print("TCP SEURAT: FindMarkers.default 2")
   alpha.diff <- alpha.min - pmin(fc.results$pct.1, fc.results$pct.2)
   features <- names(
     x = which(x = alpha.min >= min.pct & alpha.diff >= min.diff.pct)
@@ -562,8 +562,8 @@ FindMarkers.default <- function(
       latent.vars <- latent.vars[c(cells.1, cells.2), , drop = FALSE]
     }
   }
-  toc()
-  tic("FindMarkers.default performDE")
+  # toc()
+  # tic("FindMarkers.default performDE")
   de.results <- PerformDE(
     object = object,
     cells.1 = cells.1,
@@ -575,13 +575,13 @@ FindMarkers.default <- function(
     latent.vars = latent.vars,
     ...
   )
-  toc()
-  tic("FindMarkers.default post DE")
+  # toc()
+  # tic("FindMarkers.default post DE")
   de.results <- cbind(de.results, fc.results[rownames(x = de.results), , drop = FALSE])
   if (only.pos) {
     de.results <- de.results[de.results[, 2] > 0, , drop = FALSE]
   }
-  print("TCP SEURAT: FindMarkers.default 3")
+  # print("TCP SEURAT: FindMarkers.default 3")
   # isn't de.results[, 1] same as p_val?
   if (test.use %in% DEmethods_nocorrect()) {
     de.results <- de.results[order(-de.results$power, -de.results[, 1]), ]
@@ -593,8 +593,8 @@ FindMarkers.default <- function(
       n = nrow(x = object)
     )
   }
-  toc()
-  print("TCP SEURAT: FindMarkers.default DONE")
+  # toc()
+  # print("TCP SEURAT: FindMarkers.default DONE")
   return(de.results)
 }
 
@@ -613,7 +613,7 @@ FindMarkers.Assay <- function(
   test.use = 'wilcox',
   min.pct = 0.1,
   min.diff.pct = -Inf,
-  verbose = TRUE,
+  verbose = FALSE,
   only.pos = FALSE,
   max.cells.per.ident = Inf,
   random.seed = 1,
@@ -626,8 +626,8 @@ FindMarkers.Assay <- function(
   base = 2,
   ...
 ) {
-  print("TCP SEURAT: FindMarkers.assay")
-  tic("FindMarkers.assay load")
+  # print("TCP SEURAT: FindMarkers.assay")
+  # tic("FindMarkers.assay load")
 
   data.slot <- ifelse(
     test = test.use %in% DEmethods_counts(),
@@ -640,8 +640,8 @@ FindMarkers.Assay <- function(
     'scale.data' = GetAssayData(object = object, slot = "counts"),
     numeric()
   )
-  toc()
-  tic("FindMarkers.assay FoldChange")
+  # toc()
+  # tic("FindMarkers.assay FoldChange")
 
   fc.results <- FoldChange(
     object = object,
@@ -654,8 +654,8 @@ FindMarkers.Assay <- function(
     fc.name = fc.name,
     base = base
   )
-  toc()
-  tic("FindMarkers.assay dispatch FindMarkers")
+  # toc()
+  # tic("FindMarkers.assay dispatch FindMarkers")
   de.results <- FindMarkers(
     object = data.use,
     slot = data.slot,
@@ -678,8 +678,8 @@ FindMarkers.Assay <- function(
     fc.results = fc.results,
     ...
   )
-  toc()
-  print("TCP SEURAT: FindMarkers.assay DONE")
+  # toc()
+  # print("TCP SEURAT: FindMarkers.assay DONE")
   return(de.results)
 }
 
@@ -698,7 +698,7 @@ FindMarkers.DimReduc <- function(
   test.use = "wilcox",
   min.pct = 0.1,
   min.diff.pct = -Inf,
-  verbose = TRUE,
+  verbose = FALSE,
   only.pos = FALSE,
   max.cells.per.ident = Inf,
   random.seed = 1,
@@ -711,8 +711,8 @@ FindMarkers.DimReduc <- function(
   ...
 
 ) {
-  print("TCP SEURAT: FindMarkers.DimReduc")
-  tic("FindMarkers.DimReduc load")
+  # print("TCP SEURAT: FindMarkers.DimReduc")
+  # tic("FindMarkers.DimReduc load")
 
   if (test.use %in% DEmethods_counts()) {
     stop("The following tests cannot be used for differential expression on a reduction as they assume a count model: ",
@@ -732,8 +732,8 @@ FindMarkers.DimReduc <- function(
     min.diff.pct <- -Inf
     logfc.threshold <- 0
   }
-    toc()
-  tic("FindMarkers.DimReduc FoldChange")
+    # toc()
+  # tic("FindMarkers.DimReduc FoldChange")
 
   fc.results <- FoldChange(
     object = object,
@@ -756,8 +756,8 @@ FindMarkers.DimReduc <- function(
       latent.vars <- latent.vars[c(cells.1, cells.2), , drop = FALSE]
     }
   }
-  toc()
-  tic("FindMarkers.DimReduc PerformDE")
+  # toc()
+  # tic("FindMarkers.DimReduc PerformDE")
 
   de.results <- PerformDE(
     object = data,
@@ -770,8 +770,8 @@ FindMarkers.DimReduc <- function(
     latent.vars = latent.vars,
     ...
   )
-  toc()
-  tic("FindMarkers.DimReduc Post DE")
+  # toc()
+  # tic("FindMarkers.DimReduc Post DE")
   de.results <- cbind(de.results, fc.results)
   if (only.pos) {
     de.results <- de.results[de.results$avg_diff > 0, , drop = FALSE]
@@ -786,8 +786,8 @@ FindMarkers.DimReduc <- function(
       n = nrow(x = object)
     )
   }
-  toc()
-  print("TCP SEURAT: FindMarkers.DimReduc DONE")
+  # toc()
+  # print("TCP SEURAT: FindMarkers.DimReduc DONE")
   return(de.results)
 }
 
@@ -830,7 +830,7 @@ FindMarkers.Seurat <- function(
   test.use = "wilcox",
   min.pct = 0.1,
   min.diff.pct = -Inf,
-  verbose = TRUE,
+  verbose = FALSE,
   only.pos = FALSE,
   max.cells.per.ident = Inf,
   random.seed = 1,
@@ -843,8 +843,8 @@ FindMarkers.Seurat <- function(
   base = 2,
   ...
 ) {
-  print("TCP SEURAT: FindMarkers.Seurat")
-  tic("FindMarkers.Seurat setup")
+  # print("TCP SEURAT: FindMarkers.Seurat")
+  # tic("FindMarkers.Seurat setup")
 
   if (!is.null(x = group.by)) {
     if (!is.null(x = subset.ident)) {
@@ -878,8 +878,8 @@ FindMarkers.Seurat <- function(
       cells = c(cells$cells.1, cells$cells.2)
     )
   }
-  toc()
-  tic("FindMarkers.Seurat dispatch FindMarkers")
+  # toc()
+  # tic("FindMarkers.Seurat dispatch FindMarkers")
   de.results <- FindMarkers(
     object = data.use,
     slot = slot,
@@ -902,8 +902,8 @@ FindMarkers.Seurat <- function(
     base = base,
     ...
   )
-  toc()
-  print("TCP SEURAT: FindMarkers.Seurat DONE")
+  # toc()
+  # print("TCP SEURAT: FindMarkers.Seurat DONE")
   return(de.results)
 }
 
@@ -925,8 +925,8 @@ FoldChange.default <- function(
   features = NULL,
   ...
 ) {
-  print("TCP SEURAT: FoldChange.default")
-  tic("FoldChange.default setup")
+  # print("TCP SEURAT: FoldChange.default")
+  # tic("FoldChange.default setup")
 
   features <- features %||% rownames(x = object)
   # Calculate percent expressed
@@ -941,16 +941,16 @@ FoldChange.default <- function(
       length(x = cells.2),
     digits = 3
   )
-  toc()
-  tic("FoldChange.default mean")
+  # toc()
+  # tic("FoldChange.default mean")
 # Calculate fold change
   data.1 <- mean.fxn(object[features, cells.1, drop = FALSE])
   data.2 <- mean.fxn(object[features, cells.2, drop = FALSE])
   fc <- (data.1 - data.2)
   fc.results <- as.data.frame(x = cbind(fc, pct.1, pct.2))
   colnames(fc.results) <- c(fc.name, "pct.1", "pct.2")
-  toc()
-  print("TCP SEURAT: FoldChange.default DONE")
+  # toc()
+  # print("TCP SEURAT: FoldChange.default DONE")
   return(fc.results)
 }
 
@@ -972,8 +972,8 @@ FoldChange.Assay <- function(
   base = 2,
   ...
 ) {
-  print("TCP SEURAT: FoldChange.Assay")
-  tic("FoldChange.Assay setup")
+  # print("TCP SEURAT: FoldChange.Assay")
+  # tic("FoldChange.Assay setup")
   data <- GetAssayData(object = object, slot = slot)
   mean.fxn <- mean.fxn %||% switch(
     EXPR = slot,
@@ -996,8 +996,8 @@ FoldChange.Assay <- function(
     yes = "avg_diff",
     no = paste0("avg_log", base.text, "FC")
   )
-  toc()
-  tic("FoldChange.Assay dispatch FoldChange")
+  # toc()
+  # tic("FoldChange.Assay dispatch FoldChange")
   fc.results <- FoldChange(
     object = data,
     cells.1 = cells.1,
@@ -1006,8 +1006,8 @@ FoldChange.Assay <- function(
     mean.fxn = mean.fxn,
     fc.name = fc.name
   )
-  toc()
-  print("TCP SEURAT: FoldChange.Assay DONE")
+  # toc()
+  # print("TCP SEURAT: FoldChange.Assay DONE")
   return(fc.results)
 }
 
@@ -1027,22 +1027,22 @@ FoldChange.DimReduc <- function(
   mean.fxn = NULL,
   ...
 ) {
-  print("TCP SEURAT: FoldChange.DimReduc")
-  tic("FoldChange.DimReduc init")
+  # print("TCP SEURAT: FoldChange.DimReduc")
+  # tic("FoldChange.DimReduc init")
   mean.fxn <- mean.fxn %||% rowMeans
   fc.name <- fc.name %||% "avg_diff"
   data <- t(x = Embeddings(object = object))
   features <- features %||% rownames(x = data)
-  toc()
-  tic("FoldChange.DimReduc mean")
+  # toc()
+  # tic("FoldChange.DimReduc mean")
   # Calculate avg difference
   data.1 <- mean.fxn(data[features, cells.1, drop = FALSE])
   data.2 <- mean.fxn(data[features, cells.2, drop = FALSE])
   fc <- (data.1 - data.2)
   fc.results <- data.frame(fc)
   colnames(fc.results) <- fc.name
-  toc()
-  print("TCP SEURAT: FoldChange.DimReduc DONE")
+  # toc()
+  # print("TCP SEURAT: FoldChange.DimReduc DONE")
   return(fc.results)
 }
 
@@ -1086,8 +1086,8 @@ FoldChange.Seurat <- function(
   fc.name = NULL,
   ...
 ) {
-  print("TCP SEURAT: FoldChange.Seurat")
-  tic("FoldChange.Seurat init")
+  # print("TCP SEURAT: FoldChange.Seurat")
+  # tic("FoldChange.Seurat init")
   if (!is.null(x = group.by)) {
     if (!is.null(x = subset.ident)) {
       object <- subset(x = object, idents = subset.ident)
@@ -1112,8 +1112,8 @@ FoldChange.Seurat <- function(
     ident.2 = ident.2,
     cellnames.use = cellnames.use
   )
-  toc()
-  tic("FoldChange.Seurat dispatch FoldChange")
+  # toc()
+  # tic("FoldChange.Seurat dispatch FoldChange")
 
   fc.results <- FoldChange(
     object = data.use,
@@ -1126,8 +1126,8 @@ FoldChange.Seurat <- function(
     base = base,
     fc.name = fc.name
   )
-  toc()
-  print("TCP SEURAT: FoldChange.Seurat DONE")
+  # toc()
+  # print("TCP SEURAT: FoldChange.Seurat DONE")
   return(fc.results)
 }
 
@@ -1830,8 +1830,8 @@ PerformDE <- function(
   latent.vars,
   ...
 ) {
-  print("TCP SEURAT: PerformDE")
-  tic("PerformDE init")
+  # print("TCP SEURAT: PerformDE")
+  # tic("PerformDE init")
 
   if (!(test.use %in% DEmethods_latent()) && !is.null(x = latent.vars)) {
     warning(
@@ -1844,8 +1844,8 @@ PerformDE <- function(
   if (!test.use %in% DEmethods_checkdots()) {
     CheckDots(...)
   }
-  toc()
-  tic("PerformDE compute")
+  # toc()
+  # tic("PerformDE compute")
 
   de.results <- switch(
     EXPR = test.use,
@@ -1916,8 +1916,8 @@ PerformDE <- function(
     ),
     stop("Unknown test: ", test.use)
   )
-  toc()
-  print("TCP SEURAT: PerformDE DONE")
+  # toc()
+  # print("TCP SEURAT: PerformDE DONE")
   
   return(de.results)
 }
@@ -2056,7 +2056,7 @@ WilcoxDETest <- function(
   data.use,
   cells.1,
   cells.2,
-  verbose = TRUE,
+  verbose = FALSE,
   ...
 ) {
   data.use <- data.use[, c(cells.1, cells.2), drop = FALSE]
