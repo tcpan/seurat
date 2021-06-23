@@ -502,6 +502,7 @@ FindMarkers.default <- function(
     cells.2 = cells.2,
     min.cells.group = min.cells.group
   )
+  # setting features here does nothing, as it's overwritten soon.'
   features <- features %||% rownames(x = object)
   # reset parameters so no feature filtering is performed
   if (test.use %in% DEmethods_noprefilter()) {
@@ -581,6 +582,7 @@ FindMarkers.default <- function(
     de.results <- de.results[de.results[, 2] > 0, , drop = FALSE]
   }
   print("TCP SEURAT: FindMarkers.default 3")
+  # isn't de.results[, 1] same as p_val?
   if (test.use %in% DEmethods_nocorrect()) {
     de.results <- de.results[order(-de.results$power, -de.results[, 1]), ]
   } else {
@@ -2072,19 +2074,20 @@ WilcoxDETest <- function(
   if (! overflow.check) {
   	message("WARNING: overflow.check is FALSE.  there is suppressWarnings?")
   }
-  bioqc.check <- PackageCheck("BioQC", error = FALSE)
+  # bioqc.check <- PackageCheck("BioQC", error = FALSE)
   limma.check <- PackageCheck("limma", error = FALSE)
-  if ( bioqc.check[1] ) {
-    message("USING BIOQC")
-    labels <- rownames(x=data.use) %in% cells.1   
-    p_val <- my.sapply(
-	X = 1:nrow(x = data.use),
-	FUN = function(x) {
-	  return(BioQC::wmwTest(matrix(data.use[x, ], ncol=1), labels, valType = "p.two.sided"))
-	}	
-    )
-  } else if ( limma.check[1] && overflow.check) {
-#   if ( limma.check[1] && overflow.check) {
+  # if ( bioqc.check[1] ) {
+  #   message("USING BIOQC")
+  #   labels <- colnames(x=data.use) %in% cells.1   
+  #   message(sprintf("labels %s\n", labels[[1]]))
+  #   p_val <- my.sapply(
+  #     X = 1:nrow(x = data.use),
+  #     FUN = function(x) {
+  #       return(BioQC::wmwTest(matrix(data.use[x, ], ncol=1), labels, valType = "p.two.sided"))
+  #     }	
+  #   )
+  # } else if ( limma.check[1] && overflow.check) {
+  if ( limma.check[1] && overflow.check) {
     message("USING LIMMA")
     p_val <- my.sapply(
       X = 1:nrow(x = data.use),
